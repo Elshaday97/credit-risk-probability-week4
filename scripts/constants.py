@@ -26,13 +26,43 @@ class Columns(Enum):
 
 
 NUMERIC_COLS = [Columns.Amount.value, Columns.Value.value]
+CATEGORY_COLS = [Columns.ChannelId.value, Columns.ProductCategory.value]
+TARGET_COL = [Columns.FraudResult.value]
 
-CATEGORY_COLS = [
-    Columns.ChannelId.value,
-    Columns.ProductCategory.value,
-    # Columns.PricingStrategy.value,
-    # Columns.CountryCode.value,
-    # Columns.CurrencyCode.value,
+
+class Aggregated_Columns(Enum):
+    TotalTransactionAmount = "TotalTransactionAmount"
+    AverageTransactionAmount = "AverageTransactionAmount"
+    TransactionCount = "TransactionCount"
+    TransactionAmountSTD = "TransactionAmountSTD"
+    TransactionHour = "TransactionHour"
+    TransactionDay = "TransactionDay"
+    TransactionMonth = "TransactionMonth"
+    TransactionYear = "TransactionYear"
+    AverageTransactionHour = "AverageTransactionHour"
+    MostCommonTransactionDay = "MostCommonTransactionDay"
+    MostCommonTransactionMonth = "MostCommonTransactionMonth"
+    ActiveYearsCount = "ActiveYearsCount"
+    MostCommonProductCategory = "MostCommonProductCategory"
+    UniqueProductCategoryCount = "UniqueProductCategoryCount"
+    MostCommonChannel = "MostCommonChannel"
+
+
+AGG_NUMERIC_COLS = [
+    Aggregated_Columns.TotalTransactionAmount.value,
+    Aggregated_Columns.AverageTransactionAmount.value,
+    Aggregated_Columns.TransactionAmountSTD.value,
+]
+AGG_CATEGORICAL_COLS = [
+    Aggregated_Columns.MostCommonProductCategory.value,
+    Aggregated_Columns.MostCommonChannel.value,
 ]
 
-TARGET_COL = [Columns.FraudResult.value]
+AGG_FREQUENCY_COLS = [
+    Aggregated_Columns.TransactionCount.value,
+    Aggregated_Columns.ActiveYearsCount.value,
+]
+
+
+class Default_Enums(Enum):
+    UNKNOWN = "UNKNOWN"
