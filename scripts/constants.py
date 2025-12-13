@@ -4,6 +4,7 @@ RAW_DATA_DIR = "../data/raw"
 RAW_DATA_FILE_NAME = "raw_data.csv"
 CLEAN_DATA_DIR = "../data/processed"
 CLEAN_DATA_FILE_NAME = "clean_data.csv"
+PROCESSED_FEATURES_DATA_FILE_NAME = "processed_features.csv"
 
 
 class Columns(Enum):
