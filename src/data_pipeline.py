@@ -8,19 +8,20 @@ from scripts.constants import (
     AGG_FREQUENCY_COLS,
     AGG_CATEGORICAL_COLS,
 )
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import RobustScaler
+from sklearn.compose import ColumnTransformer
 import numpy as np
 from tabulate import tabulate
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
 
 
-class DataPreprocessor:
-    def __init__(self, raw_df: pd.DataFrame):
-        self.df = raw_df
-        self.agg_df = None
+class TimeFeatureExtractor(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
 
-    @handle_errors
-    def _transform_time(self):
-        working_df = self.df.copy()
+    def transform(self, X):
+        working_df = X.copy()
 
         working_df[Columns.TransactionStartTime.value] = pd.to_datetime(
             working_df[Columns.TransactionStartTime.value], errors="coerce", utc=True
@@ -41,9 +42,13 @@ class DataPreprocessor:
 
         return working_df
 
-    @handle_errors
-    def _transform_features(self):
-        working_df = self.df.copy()
+
+class CustomAggregator(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        working_df = X.copy()
         missing_cols = list(
             set([Columns.CustomerId.value, Columns.TransactionId.value])
             - set(working_df.columns)
@@ -136,12 +141,16 @@ class DataPreprocessor:
             how="outer",
         )
 
-        self.agg_df = final_df
         return final_df
 
-    @handle_errors
-    def _transform_missing(self):
-        working_df = self.agg_df.copy()
+
+class MissingValuesHandler(BaseEstimator, TransformerMixin):
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        working_df = X.copy()
 
         # Check 0 on AverageTransactionAmount
         zero_transactions = working_df[
@@ -163,43 +172,56 @@ class DataPreprocessor:
 
         return working_df
 
-    @handle_errors
-    def _transform_dtypes(self):  # Model Preparation
-        working_df = self.agg_df.copy()
-        scaler = StandardScaler()
-        label_encoder = LabelEncoder()
 
-        # I. Standardize Numeric Features to bring numeric values onto a smaller scale
-        # Steps: Transform Log -> Scale
-        print(
-            "Transform Log before Scaling since data is Right Skewed and contiains outliers:\n"
+class FeatureScaler(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        super().__init__()
+        self.scaler = ColumnTransformer(
+            transformers=[
+                ("num", RobustScaler(), AGG_NUMERIC_COLS),
+                ("freq", RobustScaler(), AGG_FREQUENCY_COLS),
+            ],
+            remainder="passthrough",
         )
-        for col in AGG_NUMERIC_COLS:
-            # working_df[col] = np.log(working_df[col]) # investigate why tranforming caused issue
-            # print(f"Transforming done for {col}")
-            working_df[col] = scaler.fit_transform(working_df[[col]])
-            print(f"Scaling done for {col}\n")
 
-        # II. Scale Frequency Values (Standardize)
-        for col in AGG_FREQUENCY_COLS:
-            working_df[col] = scaler.fit_transform(working_df[[col]])
-            print(f"Scaling done for {col}\n")
+    def fit(self, X, y=None):
+        self.scaler.fit(X)
+        return self
 
-        # III. Encode Categorical Values (Label Encoder)
-        for col in AGG_CATEGORICAL_COLS:
-            working_df[col] = label_encoder.fit_transform(working_df[col])
-            print(f"Encoding done for {col}\n")
+    def transform(self, X):
+        transformed_data = self.scaler.transform(X)
+        passthrough_cols = [
+            col for col in X.columns if col not in AGG_NUMERIC_COLS + AGG_FREQUENCY_COLS
+        ]
 
-        print("Initial Aggregated Data:")
-        print(tabulate(self.agg_df.head(), headers="keys", tablefmt="grid"))
-        print("\nScaled and Encoded Data:")
-        print(tabulate(working_df.head(), headers="keys", tablefmt="grid"))
+        output_columns = AGG_NUMERIC_COLS + AGG_FREQUENCY_COLS + passthrough_cols
+        return pd.DataFrame(transformed_data, columns=output_columns, index=X.index)
+
+
+class DataPreprocessor:
+    def __init__(self, raw_df: pd.DataFrame):
+        self.df = raw_df
+        self.pipeline = Pipeline(
+            [
+                (
+                    "time_feature_extractor",
+                    TimeFeatureExtractor(),
+                ),  # Extract time-based features
+                (
+                    "custom_aggregator",
+                    CustomAggregator(),
+                ),  # Aggregate based on customer and transaction
+                (
+                    "missing_values_handler",
+                    MissingValuesHandler(),
+                ),  # Handle missing values (with logic)
+                (
+                    "feature_scaler",
+                    FeatureScaler(),
+                ),  # Scale the numeric and frequency features
+            ]
+        )
 
     @handle_errors
     def transform_all(self) -> pd.DataFrame:
-        self.df = self._transform_time()
-        self.df = self._transform_features()
-        self.df = self._transform_missing()
-        self.df = self._transform_dtypes()
-
-        return self.df
+        return self.pipeline.fit_transform(self.df)
