@@ -1,3 +1,97 @@
+# Week 4 — Credit Risk Assessment (Project Overview)
+
+## Project Objective
+
+Build an interpretable, well-documented credit risk scoring pipeline that estimates borrower risk using a proxy default label. The deliverables:
+
+- Define and justify a proxy default target.
+- Build and validate an interpretable baseline model (WoE + Logistic Regression).
+- Compare with a higher-performance model (e.g., Gradient Boosting) and document trade-offs.
+- Provide reproducible code, documentation, and validation artifacts suitable for regulatory review.
+
+---
+
+## Quick Highlights
+
+- Emphasis on interpretability, documentation, and model governance.
+- Reproducible experiments and clear evaluation against business metrics (PD, AUC, calibration).
+- Recommendations for productionization and regulatory submission.
+
+---
+
+## Repository Structure
+
+Suggested tree (top-level files/folders):
+
+- .github/ — CI/workflow configs
+- data/
+  - raw/ — raw source files (not tracked)
+  - processed/ — cleaned datasets used for modeling
+- notebooks/
+  - 01-eda.ipynb
+- src/
+  - data_manager.py
+- scripts/
+  - constants.py
+  - decorator.py
+- tests
+  - test_data_manager.py
+- .gitignore
+- docker-compose.yml
+- Dockerfile
+- README.md
+- requirements.txt
+
+---
+
+## Installation
+
+1. Clone the repository:
+   git clone git@github.com:Elshaday97/credit-risk-probability-week4.git
+   cd credit-risk-probability-week4
+
+2. Create and activate a virtual environment:
+   python -m venv .venv
+   source .venv/bin/activate # macOS / Linux
+   .venv\Scripts\activate # Windows
+
+3. Install dependencies:
+   pip install -r requirements.txt
+
+---
+
+## Data & Privacy Notes
+
+- Raw data should live only in data/raw and not be committed.
+
+---
+
+## Usage
+
+- Exploratory analysis:
+  jupyter lab notebooks/01-eda.ipynb
+
+---
+
+## Modeling & Validation Guidance
+
+- Proxy labeling: document definition, business rationale, and sensitivity analysis (vary the threshold).
+- Feature engineering: use WoE binning for categorical and binned continuous variables to preserve interpretability.
+- Baseline: Logistic Regression with WoE and monotonicity checks.
+- Validation: AUC, KS, Brier score, calibration plots, PSI for population stability, and backtesting on temporal holdouts.
+- Stress testing: scenario tests for macro shocks and feature drift.
+
+---
+
+## Regulatory & Documentation Checklist
+
+- Model specification document (purpose, population, assumptions).
+- Data lineage and feature descriptions.
+- Training, validation, and backtest results with code notebooks.
+- Implementation plan, monitoring strategy, and model risk mitigation measures.
+
+---
+
 ## Credit Scoring Business Understanding
 
 ## Question 1
