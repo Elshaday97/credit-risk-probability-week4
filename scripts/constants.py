@@ -27,7 +27,11 @@ class Columns(Enum):
 
 
 NUMERIC_COLS = [Columns.Amount.value, Columns.Value.value]
-CATEGORY_COLS = [Columns.ChannelId.value, Columns.ProductCategory.value]
+CATEGORY_COLS = [
+    Columns.ChannelId.value,
+    Columns.ProductCategory.value,
+    Columns.ProviderId.value,
+]
 TARGET_COL = [Columns.FraudResult.value]
 
 
