@@ -6,6 +6,7 @@ CLEAN_DATA_DIR = "../data/processed"
 CLEAN_DATA_FILE_NAME = "clean_data.csv"
 PROCESSED_FEATURES_DATA_FILE_NAME = "processed_features.csv"
 PROCESSED_FEATURES_WITH_PROXY_VAR_DATA_FILE_NAME = "processed_features_with_proxy.csv"
+READY_TO_MODEL_DATA_FILE_NAME = "final_data.csv"
 
 
 class Columns(Enum):
