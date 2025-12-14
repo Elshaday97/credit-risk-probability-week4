@@ -18,18 +18,21 @@ class DataManager:
         self.raw_data_file_name = Path(RAW_DATA_FILE_NAME)
 
     @handle_errors
-    def load_csv(self, load_clean=False) -> pd.DataFrame:
+    def load_csv(self, load_clean=False, file_name=None) -> pd.DataFrame:
         """
         Docstring for load_csv
         :param load_clean: Boolean indicating whether to load clean data or raw data
+        :param file_name: The name of the file to load
         :return: DataFrame containing the loaded data
         :rtype: pd.DataFrame
         """
-        path = (
-            self.clean_data_dir / self.clean_data_file_name
-            if load_clean
-            else self.raw_data_dir / self.raw_data_file_name
+        file = (
+            file_name
+            if file_name
+            else (self.clean_data_file_name if load_clean else self.raw_data_file_name)
         )
+        file_dir = self.clean_data_dir if load_clean else self.raw_data_dir
+        path = Path(file_dir) / Path(file)
 
         print(f"Loading {path}...")
         if not Path(path).exists():
@@ -48,7 +51,7 @@ class DataManager:
         pass
 
     @handle_errors
-    def save_to_csv(self, df: pd.DataFrame):
+    def save_to_csv(self, df: pd.DataFrame, file_name: str):
         """
         Docstring for save_to_csv
         :param df: DataFrame to be saved
@@ -57,9 +60,11 @@ class DataManager:
         if df.empty:
             raise ValueError("Dataframe is empty and can not be saved.")
 
-        path = CLEAN_DATA_DIR / CLEAN_DATA_FILE_NAME
-        if not Path(path).exists():
-            raise FileNotFoundError(f"Path does not exist: {path}")
+        file = file_name if file_name else CLEAN_DATA_FILE_NAME
+        path = Path(CLEAN_DATA_DIR) / Path(file)
+
+        if not Path(CLEAN_DATA_DIR).exists():
+            raise FileNotFoundError(f"Dir does not exist: {CLEAN_DATA_DIR}")
 
         df.to_csv(path)
         print(f"Sucessfully saved dataframe to {path}!")
