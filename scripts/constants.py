@@ -5,6 +5,7 @@ RAW_DATA_FILE_NAME = "raw_data.csv"
 CLEAN_DATA_DIR = "../data/processed"
 CLEAN_DATA_FILE_NAME = "clean_data.csv"
 PROCESSED_FEATURES_DATA_FILE_NAME = "processed_features.csv"
+PROCESSED_FEATURES_WITH_PROXY_VAR_DATA_FILE_NAME = "processed_features_with_proxy.csv"
 
 
 class Columns(Enum):
@@ -32,7 +33,7 @@ CATEGORY_COLS = [
     Columns.ProductCategory.value,
     Columns.ProviderId.value,
 ]
-TARGET_COL = [Columns.FraudResult.value]
+TARGET_COL = "is_high_risk"
 
 
 class Aggregated_Columns(Enum):
@@ -44,10 +45,10 @@ class Aggregated_Columns(Enum):
     TransactionDay = "TransactionDay"
     TransactionMonth = "TransactionMonth"
     TransactionYear = "TransactionYear"
+    ActiveYearsCount = "ActiveYearsCount"
     AverageTransactionHour = "AverageTransactionHour"
     MostCommonTransactionDay = "MostCommonTransactionDay"
     MostCommonTransactionMonth = "MostCommonTransactionMonth"
-    ActiveYearsCount = "ActiveYearsCount"
     MostCommonProductCategory = "MostCommonProductCategory"
     UniqueProductCategoryCount = "UniqueProductCategoryCount"
     MostCommonChannel = "MostCommonChannel"
@@ -71,3 +72,18 @@ AGG_FREQUENCY_COLS = [
 
 class Default_Enums(Enum):
     UNKNOWN = "UNKNOWN"
+
+
+WOE_CANDIDATE_COLS = [
+    Aggregated_Columns.TotalTransactionAmount.value,
+    Aggregated_Columns.AverageTransactionAmount.value,
+    Aggregated_Columns.TransactionCount.value,
+    Aggregated_Columns.TransactionAmountSTD.value,
+    Aggregated_Columns.AverageTransactionHour.value,
+    Aggregated_Columns.MostCommonTransactionDay.value,
+    Aggregated_Columns.MostCommonTransactionMonth.value,
+    Aggregated_Columns.ActiveYearsCount.value,
+    Aggregated_Columns.MostCommonProductCategory.value,
+    Aggregated_Columns.UniqueProductCategoryCount.value,
+    Aggregated_Columns.MostCommonChannel.value,
+]
