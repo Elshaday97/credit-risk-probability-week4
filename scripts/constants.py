@@ -30,6 +30,7 @@ NUMERIC_COLS = [Columns.Amount.value, Columns.Value.value]
 CATEGORY_COLS = [
     Columns.ChannelId.value,
     Columns.ProductCategory.value,
+    Columns.ProviderId.value,
     # Columns.PricingStrategy.value,
     # Columns.CountryCode.value,
     # Columns.CurrencyCode.value,
