@@ -10,13 +10,28 @@ from sklearn.metrics import (
 
 
 class ExperimentRunner:
-    def __init__(self, model, model_name: str):
+
+    def __init__(self, model, model_name: str, param_search=None):
         self.model = model
         self.model_name = model_name
         self.metrics = {}
+        # Support tuning
+        self.param_search = param_search
 
     def train(self, X_train, y_train):
-        self.model.fit(X_train, y_train)
+        if self.param_search:
+            # Hyperparameter tuning
+            self.param_search.fit(X_train, y_train)
+
+            # Replace model with the best found model
+            self.model = self.param_search.best_estimator_
+
+            # Save best params for logging
+            self.best_params = self.param_search.best_params_
+        else:
+            # Normal training
+            self.model.fit(X_train, y_train)
+            self.best_params = self.model.get_params()
 
     def evaluate(self, X_test, y_test):
         y_pred = self.model.predict(X_test)
@@ -41,9 +56,8 @@ class ExperimentRunner:
     def log_to_mlflow(self):
         mlflow.log_param("model_type", self.model_name)
 
-        if hasattr(self.model, "get_params"):
-            for k, v in self.model.get_params().items():
-                mlflow.log_param(k, v)
+        for k, v in self.best_params.items():
+            mlflow.log_param(k, v)
 
         for metric, value in self.metrics.items():
             mlflow.log_metric(metric, value)
