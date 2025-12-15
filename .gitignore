@@ -25,3 +25,9 @@ data/
 .idea/
 .DS_Store
 Thumbs.db
+.pytest_cache/
+
+# ML Flow
+mlruns/
+.mlflow/
+mlflow.db

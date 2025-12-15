@@ -1,11 +1,7 @@
 version: '3.8'
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: credit-risk-app:latest
+  credit-risk-api:
+    build: .
     ports:
       - "8000:8000"
-    restart: unless-stopped

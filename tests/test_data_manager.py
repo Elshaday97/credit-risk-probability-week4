@@ -57,4 +57,4 @@ def test_save_to_csv_empty_dataframe_raises(data_manager):
     empty_df = pd.DataFrame()
 
     with pytest.raises(ValueError):
-        data_manager.save_to_csv(empty_df)
+        data_manager.save_to_csv(empty_df, file_name="empty_file.csv")

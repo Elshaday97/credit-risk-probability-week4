@@ -4,6 +4,17 @@ from scripts.constants import WOE_CANDIDATE_COLS, TARGET_COL
 
 
 class WoeTransformer:
+    """
+    A class to perform Weight of Evidence (WoE) transformation on a dataset.
+    Attributes:
+        df (pd.DataFrame): The input dataframe to be transformed.
+        transformed_df (pd.DataFrame): The dataframe after binning and category merging.
+        bins (int): Number of bins for numeric features.
+        category_count_min_threashold (int): Minimum count threshold for categorical features.
+        EPS (float): Smoothing constant to avoid division by zero.
+        woe_maps (dict): A dictionary to store WoE mappings for each feature.
+    """
+
     def __init__(self, df: pd.DataFrame):
         self.df = df
         self.transformed_df = None
@@ -39,10 +50,7 @@ class WoeTransformer:
         feature_counts = feature.value_counts()
 
         for category, count in feature_counts.items():
-            if (
-                category != "transport"  # protected category
-                and count <= self.category_count_min_threashold
-            ):
+            if category != "transport" and count <= self.category_count_min_threashold:  # protected category
                 self.category_merge_map[feature_name].add(category)
 
     # =========================
@@ -58,9 +66,7 @@ class WoeTransformer:
     def _transform_categorical(self, feature: pd.Series) -> pd.Series:
         feature_name = feature.name
         low_volume_categories = self.category_merge_map.get(feature_name, set())
-        return feature.apply(
-            lambda x: "OTHER_LOW_VOLUME" if x in low_volume_categories else x
-        )
+        return feature.apply(lambda x: "OTHER_LOW_VOLUME" if x in low_volume_categories else x)
 
     def _fit(self, feature_cols):
         for col in feature_cols:
@@ -85,6 +91,9 @@ class WoeTransformer:
         self.binned_df = working_df
         return working_df
 
+    # =========================
+    # PUBLIC METHODS
+    # =========================
     def fit_transform(self):
         self._fit(WOE_CANDIDATE_COLS)
         self.transformed_df = self._transform(WOE_CANDIDATE_COLS)
@@ -97,9 +106,7 @@ class WoeTransformer:
         total_good = (working_df[TARGET_COL] == 0).sum()
         total_bad = (working_df[TARGET_COL] == 1).sum()
         for col in feature_cols:
-            tmp = pd.DataFrame(
-                {"bin": working_df[col], TARGET_COL: working_df[TARGET_COL]}
-            )
+            tmp = pd.DataFrame({"bin": working_df[col], TARGET_COL: working_df[TARGET_COL]})
 
             grouped = tmp.groupby("bin")[TARGET_COL].agg(total="count", bad="sum")
 
@@ -109,17 +116,11 @@ class WoeTransformer:
             grouped["good_s"] = grouped["good"] + self.EPS
             grouped["bad_s"] = grouped["bad"] + self.EPS
 
-            grouped["dist_good"] = grouped["good_s"] / (
-                total_good + self.EPS * len(grouped)
-            )
-            grouped["dist_bad"] = grouped["bad_s"] / (
-                total_bad + self.EPS * len(grouped)
-            )
+            grouped["dist_good"] = grouped["good_s"] / (total_good + self.EPS * len(grouped))
+            grouped["dist_bad"] = grouped["bad_s"] / (total_bad + self.EPS * len(grouped))
 
             grouped["woe"] = np.log(grouped["dist_good"] / grouped["dist_bad"])
-            grouped["iv"] = (grouped["dist_good"] - grouped["dist_bad"]) * grouped[
-                "woe"
-            ]
+            grouped["iv"] = (grouped["dist_good"] - grouped["dist_bad"]) * grouped["woe"]
 
             self.woe_maps[col] = grouped["woe"].to_dict()
 
@@ -128,6 +129,9 @@ class WoeTransformer:
 
         return pd.DataFrame(iv_results).sort_values("iv", ascending=False)
 
+    # =========================
+    # WOe TRANSFORM PHASE
+    # =========================
     def transform_to_woe(self):
         if self.binned_df is None:
             raise ValueError("Call fit_transform() first")
