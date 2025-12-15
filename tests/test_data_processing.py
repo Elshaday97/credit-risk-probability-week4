@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import pytest
 
 from src.woe_transformer import WoeTransformer
 from scripts.constants import TARGET_COL, WOE_CANDIDATE_COLS
@@ -64,9 +63,7 @@ def test_feature_engineering_returns_expected_columns():
     expected_columns = set(WOE_CANDIDATE_COLS)
     actual_columns = set(transformed_df.columns)
 
-    assert expected_columns.issubset(
-        actual_columns
-    ), f"Expected columns missing: {expected_columns - actual_columns}"
+    assert expected_columns.issubset(actual_columns), f"Expected columns missing: {expected_columns - actual_columns}"
 
 
 # =====================================================
@@ -83,9 +80,7 @@ def test_woe_transformer_produces_no_nulls():
 
     null_counts = woe_df.isna().sum()
 
-    assert (
-        null_counts.sum() == 0
-    ), f"WOE transformed dataframe contains nulls:\n{null_counts}"
+    assert null_counts.sum() == 0, f"WOE transformed dataframe contains nulls:\n{null_counts}"
 
 
 # =====================================================

@@ -2,9 +2,7 @@ from fastapi import FastAPI
 import pandas as pd
 from .model_loader import load_model
 from .pydantic_models import PredictionRequest, PredictionResponse
-from scripts.constants import Aggregated_Columns, MODEL_NAME
-import os
-import mlflow
+from scripts.constants import Aggregated_Columns
 from pathlib import Path
 
 project_root = Path.cwd().parent

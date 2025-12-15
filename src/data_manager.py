@@ -35,11 +35,7 @@ class DataManager:
         :return: DataFrame containing the loaded data
         :rtype: pd.DataFrame
         """
-        file = (
-            file_name
-            if file_name
-            else (self.clean_data_file_name if load_clean else self.raw_data_file_name)
-        )
+        file = file_name if file_name else (self.clean_data_file_name if load_clean else self.raw_data_file_name)
         file_dir = self.clean_data_dir if load_clean else self.raw_data_dir
         path = Path(file_dir) / Path(file)
 

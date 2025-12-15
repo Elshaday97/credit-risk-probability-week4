@@ -6,12 +6,9 @@ from scripts.constants import (
     Default_Enums,
     AGG_NUMERIC_COLS,
     AGG_FREQUENCY_COLS,
-    AGG_CATEGORICAL_COLS,
 )
 from sklearn.preprocessing import RobustScaler
 from sklearn.compose import ColumnTransformer
-import numpy as np
-from tabulate import tabulate
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
@@ -31,18 +28,10 @@ class TimeFeatureExtractor(BaseEstimator, TransformerMixin):
             working_df[Columns.TransactionStartTime.value], errors="coerce", utc=True
         )
 
-        working_df[Aggregated_Columns.TransactionHour.value] = working_df[
-            Columns.TransactionStartTime.value
-        ].dt.hour
-        working_df[Aggregated_Columns.TransactionDay.value] = working_df[
-            Columns.TransactionStartTime.value
-        ].dt.day
-        working_df[Aggregated_Columns.TransactionMonth.value] = working_df[
-            Columns.TransactionStartTime.value
-        ].dt.month
-        working_df[Aggregated_Columns.TransactionYear.value] = working_df[
-            Columns.TransactionStartTime.value
-        ].dt.year
+        working_df[Aggregated_Columns.TransactionHour.value] = working_df[Columns.TransactionStartTime.value].dt.hour
+        working_df[Aggregated_Columns.TransactionDay.value] = working_df[Columns.TransactionStartTime.value].dt.day
+        working_df[Aggregated_Columns.TransactionMonth.value] = working_df[Columns.TransactionStartTime.value].dt.month
+        working_df[Aggregated_Columns.TransactionYear.value] = working_df[Columns.TransactionStartTime.value].dt.year
 
         return working_df
 
@@ -57,14 +46,9 @@ class CustomAggregator(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         working_df = X.copy()
-        missing_cols = list(
-            set([Columns.CustomerId.value, Columns.TransactionId.value])
-            - set(working_df.columns)
-        )
+        missing_cols = list(set([Columns.CustomerId.value, Columns.TransactionId.value]) - set(working_df.columns))
         if missing_cols:
-            print(
-                f"Missing columns found, unable to continue pre-processing {missing_cols}"
-            )
+            print(f"Missing columns found, unable to continue pre-processing {missing_cols}")
 
         # Step 1: Aggregate using Numeric Values
         numeric_agg_config = {
@@ -101,15 +85,11 @@ class CustomAggregator(BaseEstimator, TransformerMixin):
                 "nunique",
             ),
         }
-        numeric_aggregated_df = (
-            working_df.groupby(Columns.CustomerId.value)
-            .agg(**numeric_agg_config)
-            .reset_index()
-        )
+        numeric_aggregated_df = working_df.groupby(Columns.CustomerId.value).agg(**numeric_agg_config).reset_index()
 
-        numeric_aggregated_df[
+        numeric_aggregated_df[Aggregated_Columns.TransactionAmountSTD.value] = numeric_aggregated_df[
             Aggregated_Columns.TransactionAmountSTD.value
-        ] = numeric_aggregated_df[Aggregated_Columns.TransactionAmountSTD.value].fillna(
+        ].fillna(
             0
         )  # Customers with 1 transaction will have NaN std
 
@@ -117,11 +97,7 @@ class CustomAggregator(BaseEstimator, TransformerMixin):
         categorical_agg_config = {
             Aggregated_Columns.MostCommonProductCategory.value: (
                 Columns.ProductCategory.value,
-                lambda row: (
-                    row.mode()[0]
-                    if not row.mode().empty
-                    else Default_Enums.UNKNOWN.value
-                ),
+                lambda row: (row.mode()[0] if not row.mode().empty else Default_Enums.UNKNOWN.value),
             ),
             Aggregated_Columns.UniqueProductCategoryCount.value: (
                 Columns.ProductCategory.value,
@@ -129,18 +105,12 @@ class CustomAggregator(BaseEstimator, TransformerMixin):
             ),
             Aggregated_Columns.MostCommonChannel.value: (
                 Columns.ChannelId.value,
-                lambda row: (
-                    row.mode()[0]
-                    if not row.mode().empty
-                    else Default_Enums.UNKNOWN.value
-                ),
+                lambda row: (row.mode()[0] if not row.mode().empty else Default_Enums.UNKNOWN.value),
             ),
         }
 
         categorical_aggregated_df = (
-            working_df.groupby(Columns.CustomerId.value)
-            .agg(**categorical_agg_config)
-            .reset_index()
+            working_df.groupby(Columns.CustomerId.value).agg(**categorical_agg_config).reset_index()
         )
         final_df = pd.merge(
             numeric_aggregated_df,
@@ -164,22 +134,21 @@ class MissingValuesHandler(BaseEstimator, TransformerMixin):
         working_df = X.copy()
 
         # Check 0 on AverageTransactionAmount
-        zero_transactions = working_df[
-            working_df[Aggregated_Columns.AverageTransactionAmount.value] == 0
-        ][Columns.CustomerId.value].count()
+        zero_transactions = working_df[working_df[Aggregated_Columns.AverageTransactionAmount.value] == 0][
+            Columns.CustomerId.value
+        ].count()
 
         print(
-            f"Found {zero_transactions} rows where AverageTransactionAmount is 0. No impuding will be carried out because the STD value is greater than 0 which signifies that the AverageTransactionAmount computed to 0 because of positive and negative values canceling out eachother, not because there was no transaction"
+            f"Found {zero_transactions} rows with AverageTransactionAmount = 0. "
+            "No imputation applied because std > 0, indicating values canceled out "
+            "rather than no transactions."
         )
-
         # Checking missing timestamps
-        null_days = working_df[
-            working_df[Aggregated_Columns.MostCommonTransactionDay.value].isna()
-        ][Columns.CustomerId.value].count()
+        null_days = working_df[working_df[Aggregated_Columns.MostCommonTransactionDay.value].isna()][
+            Columns.CustomerId.value
+        ].count()
 
-        print(
-            f"Found {null_days} null timestamps. Skipping impuding for time related fields"
-        )
+        print(f"Found {null_days} null timestamps. Skipping impuding for time related fields")
 
         return working_df
 
@@ -205,9 +174,7 @@ class FeatureScaler(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         transformed_data = self.scaler.transform(X)
-        passthrough_cols = [
-            col for col in X.columns if col not in AGG_NUMERIC_COLS + AGG_FREQUENCY_COLS
-        ]
+        passthrough_cols = [col for col in X.columns if col not in AGG_NUMERIC_COLS + AGG_FREQUENCY_COLS]
 
         output_columns = AGG_NUMERIC_COLS + AGG_FREQUENCY_COLS + passthrough_cols
         return pd.DataFrame(transformed_data, columns=output_columns, index=X.index)

@@ -11,7 +11,6 @@ from scripts.constants import MODEL_NAME
 
 
 class ExperimentRunner:
-
     def __init__(self, model, model_name: str, param_search=None):
         self.model = model
         self.model_name = model_name
@@ -36,11 +35,7 @@ class ExperimentRunner:
 
     def evaluate(self, X_test, y_test):
         y_pred = self.model.predict(X_test)
-        y_prob = (
-            self.model.predict_proba(X_test)[:, 1]
-            if hasattr(self.model, "predict_proba")
-            else None
-        )
+        y_prob = self.model.predict_proba(X_test)[:, 1] if hasattr(self.model, "predict_proba") else None
 
         self.metrics = {
             "accuracy": accuracy_score(y_test, y_pred),

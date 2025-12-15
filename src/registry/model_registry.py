@@ -1,4 +1,3 @@
-import mlflow
 from mlflow.tracking import MlflowClient
 
 
@@ -61,9 +60,7 @@ class ModelRegistryManager:
         # Archive existing production models
         for mv in self.get_all_versions():
             if mv.current_stage == "Production":
-                self.client.transition_model_version_stage(
-                    name=self.model_name, version=mv.version, stage="Archived"
-                )
+                self.client.transition_model_version_stage(name=self.model_name, version=mv.version, stage="Archived")
 
         # Promote best model
         self.client.transition_model_version_stage(

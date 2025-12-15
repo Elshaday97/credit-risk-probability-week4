@@ -1,6 +1,5 @@
-from src import DataManager, ExperimentRunner
+from src import ExperimentRunner
 from scripts.constants import (
-    Columns,
     MODEL_NAME,
 )
 from sklearn.model_selection import train_test_split
