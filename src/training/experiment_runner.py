@@ -7,6 +7,7 @@ from sklearn.metrics import (
     f1_score,
     roc_auc_score,
 )
+from scripts.constants import MODEL_NAME
 
 
 class ExperimentRunner:
@@ -63,3 +64,8 @@ class ExperimentRunner:
             mlflow.log_metric(metric, value)
 
         mlflow.sklearn.log_model(self.model, artifact_path="model")
+
+        run_id = mlflow.active_run().info.run_id
+        model_uri = f"runs:/{run_id}/model"
+
+        mlflow.register_model(model_uri=model_uri, name=MODEL_NAME)

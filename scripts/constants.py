@@ -76,15 +76,18 @@ class Default_Enums(Enum):
 
 
 WOE_CANDIDATE_COLS = [
-    Aggregated_Columns.TotalTransactionAmount.value,
-    Aggregated_Columns.AverageTransactionAmount.value,
     Aggregated_Columns.TransactionCount.value,
+    Aggregated_Columns.TotalTransactionAmount.value,
+    Aggregated_Columns.UniqueProductCategoryCount.value,
     Aggregated_Columns.TransactionAmountSTD.value,
+    Aggregated_Columns.AverageTransactionAmount.value,
     Aggregated_Columns.AverageTransactionHour.value,
     Aggregated_Columns.MostCommonTransactionDay.value,
     Aggregated_Columns.MostCommonTransactionMonth.value,
     Aggregated_Columns.ActiveYearsCount.value,
     Aggregated_Columns.MostCommonProductCategory.value,
-    Aggregated_Columns.UniqueProductCategoryCount.value,
     Aggregated_Columns.MostCommonChannel.value,
 ]
+
+MODEL_NAME = "credit-risk-models"
+MODEL_STAGE = "Production"
