@@ -3,11 +3,22 @@ from mlflow.tracking import MlflowClient
 
 
 class ModelRegistryManager:
+    """
+    Manages MLflow Model Registry operations such as retrieving model versions
+    and promoting the best model to production based on a specified metric.
+    Attributes:
+        model_name (str): The name of the registered model in MLflow.
+        client (MlflowClient): The MLflow client for interacting with the model registry.
+    """
+
     def __init__(self, model_name: str):
         self.model_name = model_name
         self.client = MlflowClient()
 
     def get_all_versions(self):
+        """
+        Retrieves all versions of the registered model.
+        :return: List of ModelVersion objects."""
         cds = self.client.search_model_versions(f"name='{self.model_name}'")
         print(cds, self.model_name)
         for m in self.client.search_registered_models():
@@ -15,6 +26,11 @@ class ModelRegistryManager:
         return cds
 
     def get_best_version_by_metric(self, metric_name="roc_auc"):
+        """
+        Retrieves the best model version based on the specified metric.
+        :param metric_name: The metric to evaluate model performance.
+        :return: Tuple of (best ModelVersion, best metric value)
+        """
         best_version = None
         best_metric = -1
 
@@ -35,6 +51,11 @@ class ModelRegistryManager:
         return best_version, best_metric
 
     def promote_to_production(self, metric_name="roc_auc"):
+        """
+        Promotes the best model version to the 'Production' stage based on the specified metric.
+        Archives any existing production models.
+        :param metric_name: The metric to evaluate model performance.
+        :return: The version number of the promoted model and its metric score."""
         best_version, score = self.get_best_version_by_metric(metric_name)
 
         # Archive existing production models

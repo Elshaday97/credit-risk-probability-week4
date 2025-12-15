@@ -9,14 +9,17 @@ from pathlib import Path
 
 project_root = Path.cwd().parent
 
-
+"""Initialize FastAPI app"""
 app = FastAPI(
     title="Credit Risk Prediction API",
     description="Predict customer credit risk using MLFlow deployed model",
     version="1.0",
 )
 
+""" Load the MLFlow model """
 model = load_model()
+
+
 FEATURE_ORDER = [
     Aggregated_Columns.TransactionCount.value,
     Aggregated_Columns.TotalTransactionAmount.value,

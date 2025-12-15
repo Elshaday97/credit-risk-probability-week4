@@ -4,6 +4,17 @@ from scripts.constants import WOE_CANDIDATE_COLS, TARGET_COL
 
 
 class WoeTransformer:
+    """
+    A class to perform Weight of Evidence (WoE) transformation on a dataset.
+    Attributes:
+        df (pd.DataFrame): The input dataframe to be transformed.
+        transformed_df (pd.DataFrame): The dataframe after binning and category merging.
+        bins (int): Number of bins for numeric features.
+        category_count_min_threashold (int): Minimum count threshold for categorical features.
+        EPS (float): Smoothing constant to avoid division by zero.
+        woe_maps (dict): A dictionary to store WoE mappings for each feature.
+    """
+
     def __init__(self, df: pd.DataFrame):
         self.df = df
         self.transformed_df = None
@@ -85,6 +96,9 @@ class WoeTransformer:
         self.binned_df = working_df
         return working_df
 
+    # =========================
+    # PUBLIC METHODS
+    # =========================
     def fit_transform(self):
         self._fit(WOE_CANDIDATE_COLS)
         self.transformed_df = self._transform(WOE_CANDIDATE_COLS)
@@ -128,6 +142,9 @@ class WoeTransformer:
 
         return pd.DataFrame(iv_results).sort_values("iv", ascending=False)
 
+    # =========================
+    # WOe TRANSFORM PHASE
+    # =========================
     def transform_to_woe(self):
         if self.binned_df is None:
             raise ValueError("Call fit_transform() first")

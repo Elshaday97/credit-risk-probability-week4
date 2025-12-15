@@ -11,6 +11,15 @@ from scripts.constants import (
 
 
 class DataManager:
+    """
+    A class to manage data loading, cleaning, and saving.
+    Attributes:
+        clean_data_dir (Path): Directory path for clean data.
+        raw_data_dir (Path): Directory path for raw data.
+        clean_data_file_name (Path): File name for clean data.
+        raw_data_file_name (Path): File name for raw data.
+    """
+
     def __init__(self):
         self.clean_data_dir = Path(CLEAN_DATA_DIR)
         self.raw_data_dir = Path(RAW_DATA_DIR)
@@ -45,10 +54,6 @@ class DataManager:
 
         print(f"Sucessfully loaded {path}!")
         return df
-
-    @handle_errors
-    def clean_data(self):
-        pass
 
     @handle_errors
     def save_to_csv(self, df: pd.DataFrame, file_name: str):

@@ -17,6 +17,10 @@ from sklearn.pipeline import Pipeline
 
 
 class TimeFeatureExtractor(BaseEstimator, TransformerMixin):
+    """
+    Extracts time-based features from the TransactionStartTime column.
+    """
+
     def fit(self, X, y=None):
         return self
 
@@ -44,6 +48,10 @@ class TimeFeatureExtractor(BaseEstimator, TransformerMixin):
 
 
 class CustomAggregator(BaseEstimator, TransformerMixin):
+    """
+    Aggregates the raw transaction data into customer-level features.
+    """
+
     def fit(self, X, y=None):
         return self
 
@@ -145,6 +153,9 @@ class CustomAggregator(BaseEstimator, TransformerMixin):
 
 
 class MissingValuesHandler(BaseEstimator, TransformerMixin):
+    """
+    Handles missing values in the dataset with custom logic.
+    """
 
     def fit(self, X, y=None):
         return self
@@ -174,6 +185,10 @@ class MissingValuesHandler(BaseEstimator, TransformerMixin):
 
 
 class FeatureScaler(BaseEstimator, TransformerMixin):
+    """
+    Scales numeric and frequency features using RobustScaler.
+    """
+
     def __init__(self):
         super().__init__()
         self.scaler = ColumnTransformer(
@@ -199,6 +214,13 @@ class FeatureScaler(BaseEstimator, TransformerMixin):
 
 
 class DataPreprocessor:
+    """
+    Orchestrates the data preprocessing pipeline.
+    Attributes:
+        df (pd.DataFrame): The raw input dataframe.
+        pipeline (Pipeline): The sklearn pipeline for data preprocessing.
+    """
+
     def __init__(self, raw_df: pd.DataFrame):
         self.df = raw_df
         self.pipeline = Pipeline(
@@ -224,4 +246,5 @@ class DataPreprocessor:
 
     @handle_errors
     def transform_all(self) -> pd.DataFrame:
+        """Applies the full preprocessing pipeline to the raw dataframe."""
         return self.pipeline.fit_transform(self.df)

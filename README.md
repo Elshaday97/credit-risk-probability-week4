@@ -28,9 +28,24 @@ Suggested tree (top-level files/folders):
   - raw/ — raw source files (not tracked)
   - processed/ — cleaned datasets used for modeling
 - notebooks/
-  - 01-eda.ipynb
+  - eda.ipynb
+  - feat_engineering.ipynb
+  - model_training.ipynb
+  - rfm_clustering.ipynb
+  - woe_iv.ipynb
 - src/
+  - api/
+    - main.py
+    - model_loader.py
+    - pydantic_models.py
+  - registry/
+    - model_registry.py
+  - training/
+    - experiment_runner.py
+    - train.py
   - data_manager.py
+  - data_pipeline.py
+  - woe_transformer.py
 - scripts/
   - constants.py
   - decorator.py
@@ -68,8 +83,10 @@ Suggested tree (top-level files/folders):
 
 ## Usage
 
-- Exploratory analysis:
-  jupyter lab notebooks/01-eda.ipynb
+1. Jupyter Notebooks: Launch Jupyter and explore notebooks in the notebooks/ folder for EDA, feature engineering, WOE/IV analysis, clustering, and model training.
+2. Training Script: Run the training pipeline to execute end-to-end model training and evaluation.
+3. API: Use src/api/main.py to serve the trained model via a REST API.
+4. Tests: Run unit tests in the tests/ folder to validate code functionality.
 
 ---
 
@@ -78,17 +95,7 @@ Suggested tree (top-level files/folders):
 - Proxy labeling: document definition, business rationale, and sensitivity analysis (vary the threshold).
 - Feature engineering: use WoE binning for categorical and binned continuous variables to preserve interpretability.
 - Baseline: Logistic Regression with WoE and monotonicity checks.
-- Validation: AUC, KS, Brier score, calibration plots, PSI for population stability, and backtesting on temporal holdouts.
-- Stress testing: scenario tests for macro shocks and feature drift.
-
----
-
-## Regulatory & Documentation Checklist
-
-- Model specification document (purpose, population, assumptions).
-- Data lineage and feature descriptions.
-- Training, validation, and backtest results with code notebooks.
-- Implementation plan, monitoring strategy, and model risk mitigation measures.
+- Validation: Accuracy, f1, ROC-AUC, Recall
 
 ---
 
